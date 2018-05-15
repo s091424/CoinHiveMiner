@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Simple CoinHive Miner</title>
+</head>
+
+<body>
+
+    <p>Hashes per second:
+        <span id="hps"></span>
+    </p>
+    <p>Total Hashes:
+        <span id="th"></span>
+    </p>
+    <p>Accepted hashes:
+        <span id="ah"></span>
+    </p>
+
+    <p>
+        <button onclick="decreaseNS()">-</button>
+        Number of threads:
+        <span id="ns"></span>
+        <button onclick="increaseNS()">+</button>
+    </p>
+    <p>
+        <button onclick="decreaseTE()">-</button>
+        Throttle:
+        <span id="te"></span>
+        <button onclick="increaseTE()">+</button>
+    </p>
+
+
+
+    <button onclick="toggleMining()" id="togglebutton">Start Mining</button>
+    <br>
+
+    <script src="https://authedmine.com/lib/authedmine.min.js"></script>
+    <script>
+
+        var miner = new CoinHive.Anonymous('1AgvmYpnRusj4qhxW5o9777IU7yP1O4S');
+
+        function decreaseTE() {
+            miner.setThrottle(miner.getThrottle() - 0.1);
+        }
+        function increaseTE() {
+            miner.setThrottle(miner.getThrottle() + 0.1);
+        }
+        function decreaseNS() {
+            miner.setNumThreads(miner.getNumThreads() - 1);
+        }
+        function increaseNS() {
+            let value = miner.getNumThreads() + 1;
+            if(value <= 8) miner.setNumThreads(value);
+        }
+
+        function toggleMining() {
+            if (miner.isRunning()) {
+                stop();
+            } else {
+                start();
+            }
+        }
+
+        function start() {
+            if (miner.isRunning()) return;
+            if (!miner.isMobile()) {
+                miner.start();
+                document.getElementById("togglebutton").innerHTML = "Stop Mining";
+            } else {
+                window.alert("You can't use mobile to mine monero.");
+            }
+        }
+
+        function stop() {
+            if (!miner.isRunning()) return;
+            miner.stop();
+            document.getElementById("togglebutton").innerHTML = "Start Mining";
+        }
+
+        setInterval(function () {
+
+            var hashesPerSecond = miner.getHashesPerSecond();
+            var totalHashes = miner.getTotalHashes();
+            var acceptedHashes = miner.getAcceptedHashes();
+            var numberOfThreads = miner.getNumThreads();
+            var throttle = miner.getThrottle();
+
+            document.getElementById("hps").innerHTML = hashesPerSecond;
+            document.getElementById("th").innerHTML = totalHashes;
+            document.getElementById("ah").innerHTML = acceptedHashes;
+            document.getElementById("ns").innerHTML = numberOfThreads;
+            document.getElementById("te").innerHTML = throttle;
+
+            if(numberOfThreads <= 0){
+                miner.setNumThreads(2);
+            }
+            if(throttle <= 0){
+                miner.setThrottle(0.3);
+            }
+
+        }, 1000);
+
+    </script>
+
+</body>
+
+</html>
